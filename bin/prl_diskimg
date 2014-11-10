@@ -1,0 +1,21 @@
+#################
+# Returns (prints out) the path to the disk image connected to the virtual machine with the given name.
+#
+#!/bin/bash
+VM_NAME="${1}"
+DISK_ID="${2-hdd0}"
+if [ -z "${VM_NAME}" ]; then 
+    echo "Usage: ${0} <ID | NAME> [diskid]"
+    echo ""
+    echo "       diskid defaults to \"hdd0\""
+    exit 1
+fi
+
+PRL_INFO="$(prlctl list -i "${VM_NAME}")" || exit $?
+DISK_IMG="$(echo "${PRL_INFO}" | sed -En "s/^  ${DISK_ID} .* image='([^']+)'.*$/\1/p")"
+if [ -z "${DISK_IMG}" ]; then
+    echo "Could not find disk with ID '${DISK_ID}'" >&2
+    exit 1
+else
+    echo "${DISK_IMG}"
+fi
