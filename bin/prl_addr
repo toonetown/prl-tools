@@ -1,0 +1,16 @@
+#################
+# Returns the IP address of the virtual machine with the given name.  Note that currently, it only checks for
+# the address of the first NIC on OS X and Linux.
+#
+#!/bin/bash
+NAME="${1}"
+if [ -z "${NAME}" ]; then 
+    echo "Usage: ${0} <ID | NAME>"
+    return 1
+fi
+
+# Check for the VM
+prlctl status "${1}" >/dev/null || exit $?
+
+prlctl exec "${NAME}" 'ifconfig eth0 || ifconfig en0' 2>/dev/null | sed -En 's/^.*inet (addr:)?([0-9\.]*).*$/\2/p'
+return $?

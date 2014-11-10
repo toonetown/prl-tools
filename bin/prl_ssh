@@ -1,0 +1,20 @@
+#################
+# Executes SSH to a parallels VM by name
+#
+#!/bin/bash
+SSH_ARGS=""
+while [ "$#" -gt 1 ]; do SSH_ARGS="${SSH_ARGS} $1"; shift; done
+if [ -z "${1}" ]; then 
+    echo "Usage: ${0} [ssh-opts] [USER@]<ID | NAME>"
+    exit 1
+fi
+
+# Check for the VM
+prlctl status "${1}" >/dev/null || exit $?
+
+SSH_USER="$(echo "${1}" | cut -d'@' -f1)"
+SSH_NAME="$(echo "${1}" | cut -d'@' -f2)"
+if [ "${SSH_USER}" == "${SSH_NAME}" ]; then SSH_USER="$(whoami)"; fi
+SSH_ADDR="$(prl_addr "${SSH_NAME}")"
+if [ -z "${SSH_ADDR}" ]; then echo "Could not find address for '${SSH_NAME}'"; exit 1; fi
+exec ssh ${SSH_ARGS} ${SSH_USER}@${SSH_ADDR}
