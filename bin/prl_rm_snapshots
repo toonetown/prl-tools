@@ -3,7 +3,7 @@
 #
 #!/bin/bash
 [ -n "${1}" ] || {
-    echo "Usage: ${0} <vm_name>"
+    echo "Usage: ${0} <ID | NAME>"
     exit 1
 }
 

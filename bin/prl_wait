@@ -3,9 +3,9 @@
 # true for /usr/bin/true - meaning it will work on OS X and Linux VMs.
 #
 #!/bin/bash
-if [ "${1}" == "-s" ]; then __SD="yes"; shift; else unset __SD; fi
+if [ "${1}" == "-s" ]; then SHUTDOWN="yes"; shift; else unset SHUTDOWN; fi
 echo "${2-300}" | grep '^[0-9]\+$' &>/dev/null && [ -n "${1}" ] || {
-    echo "Usage: ${0} [-s] <vm_name> [timeout]"
+    echo "Usage: ${0} [-s] <ID | NAME> [timeout]"
     echo ""
     echo "-s indicates to wait for the VM to stop"
     echo "timeout is in seconds - defaults to 300"
@@ -15,11 +15,11 @@ echo "${2-300}" | grep '^[0-9]\+$' &>/dev/null && [ -n "${1}" ] || {
 # Check for the VM
 prlctl status "${1}" >/dev/null || exit $?
 
-[ -z "${__SD}" ] && echo "Waiting for VM..." || echo "Waiting for VM to stop..."
+[ -z "${SHUTDOWN}" ] && echo "Waiting for VM..." || echo "Waiting for VM to stop..."
 COUNT=0
 while [ ${COUNT} -lt ${2-300} ]; do
     COUNT=$((COUNT+1))
-    if [ -z "${__SD}" ]; then
+    if [ -z "${SHUTDOWN}" ]; then
         # TODO: Do a different check if it is a Windows VM
         ( prlctl exec "${VM_NAME}" /usr/bin/true ) &>/dev/null && break
     else
@@ -28,4 +28,4 @@ while [ ${COUNT} -lt ${2-300} ]; do
     sleep 1
 done
 [ ${COUNT} -lt ${2-300} ] || { echo "Timed out waiting for agent"; exit 2; }
-[ -z "${__SD}" ] && echo "VM is ready." || echo "VM is stopped."
+[ -z "${SHUTDOWN}" ] && echo "VM is ready." || echo "VM is stopped."
