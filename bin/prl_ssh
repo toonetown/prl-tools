@@ -9,12 +9,9 @@ if [ -z "${1}" ]; then
     exit 1
 fi
 
-# Check for the VM
-prlctl status "${1}" >/dev/null || exit $?
-
 SSH_USER="$(echo "${1}" | cut -d'@' -f1)"
-SSH_NAME="$(echo "${1}" | cut -d'@' -f2)"
-if [ "${SSH_USER}" == "${SSH_NAME}" ]; then SSH_USER="$(whoami)"; fi
-SSH_ADDR="$(prl_addr "${SSH_NAME}")"
-if [ -z "${SSH_ADDR}" ]; then echo "Could not find address for '${SSH_NAME}'"; exit 1; fi
-exec ssh ${SSH_ARGS} ${SSH_USER}@${SSH_ADDR}
+VM_NAME="$(echo "${1}" | cut -d'@' -f2)"
+if [ "${SSH_USER}" == "${VM_NAME}" ]; then SSH_USER="$(whoami)"; fi
+VM_ADDR="$(prl_addr "${VM_NAME}")" || exit $?
+if [ -z "${VM_ADDR}" ]; then echo "Could not find address for '${VM_NAME}'"; exit 1; fi
+exec ssh ${SSH_ARGS} ${SSH_USER}@${VM_ADDR}

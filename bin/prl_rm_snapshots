@@ -2,15 +2,16 @@
 # Deletes all snapshots for the given VM
 #
 #!/bin/bash
-[ -n "${1}" ] || {
+VM_NAME="${1}"
+[ -n "${VM_NAME}" ] || {
     echo "Usage: ${0} <ID | NAME>"
     exit 1
 }
 
 # Check for the VM
-prlctl status "${1}" >/dev/null || exit $?
+prlctl status "${VM_NAME}" >/dev/null || exit $?
 
 # Get the list of snapshots and delete them all - but delete them in reverse order for speed
-for i in $(prlctl snapshot-list "${1}" | sed -En 's/^.*{([^}]*)}.*$/\1/p' | tail -r); do
-    prlctl snapshot-delete "${1}" -i "${i}" || exit 1
+for i in $(prlctl snapshot-list "${VM_NAME}" | sed -En 's/^.*{([^}]*)}.*$/\1/p' | tail -r); do
+    prlctl snapshot-delete "${VM_NAME}" -i "${i}" || exit 1
 done
